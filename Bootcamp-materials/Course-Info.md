@@ -37,19 +37,19 @@ The course is a blend of online learning experiences (about 2 hours of preparati
 - **Topics**: predictive analytics/supervised learning, KNN, regression tree; Brief intro to recent advances such as deep learning
 - **Lab**: KNN and regression tree
  
-#### Day 6: May 22nd, 2018: WORKING WITH DIGITAL TEXT 
+#### Day 6: May 29th, 2018: WORKING WITH DIGITAL TEXT 
 - **Topics**: Text as data
 - **Lab**: Load textual data; Using different types of textual data; explore History Lab data
 
-#### Day 7: May 23rd, 2018: VISUALIZE AND EXPLORE PATTERNS IN TEXT 
+#### Day 7: May 30th, 2018: VISUALIZE AND EXPLORE PATTERNS IN TEXT 
 - **Topics**: Describing textual data
 - **Lab**: Tools for creating textual features and visualizations: word clouds, key words in context
  
-#### Day 8: May 24th, 2018: TEXTUAL DATA MODELING 
+#### Day 8: May 31st, 2018: TEXTUAL DATA MODELING 
 - **Topics**: Review of week 1 tools helpful for text data; Text specific models
 - **Lab**: LDA; network analysis; clustering; topic models
  
-#### Day 9: May 25th, 2018: CAPSTONE 
+#### Day 9: June 1st, 2018: CAPSTONE 
 - **Topics**: Finishing the project
 - **Lab**: Presentations
  
