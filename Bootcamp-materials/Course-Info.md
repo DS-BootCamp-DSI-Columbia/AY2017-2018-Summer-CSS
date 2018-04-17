@@ -9,11 +9,13 @@ The course is a blend of online learning experiences (about 2 hours of preparati
 
 ### Schedule (tentative)
 #### Typical daily schedule (unless otherwise noted)
-- 9:00am-12:00pm: Session 1 (Lecture)
+- 9:00am-10:30pm: Session 1 (Lecture)
+- 10:30am-11:00am: Break
+- 11:00am-12:00pm: Session 2 (1h lab)
 - 12:00pm-1:00pm: Lunch Break
-- 1:00pm-2:30pm: Session 2 (30 min introduction + 1h lab)
+- 1:00pm-2:30pm: Session 3 (30 min Q&A + 1h lab)
 - 2:30pm-3:00pm: Break
-- 3:00pm-4:00pm: Session 3 (1h lab)
+- 3:00pm-4:00pm: Session 4 (1h lab)
 
 (Pre-assignments are short videos that should be studied before coming to the sessions.)
 
