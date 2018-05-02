@@ -5,13 +5,13 @@
 - Daily schedule: 9am to 4pm
 
 ### Course Information
-The course is a blend of online learning experiences (about 2 hours of preparation will be required per day), in-class lectures, hands-on laboratory exercises with a variety of data sets, and a capstone project. The course will use the Python programming language. Participants are required to bring their own computer to the daily sessions. Lunch and refreshments are **NOT** provided.
+The course is a blend of online learning experiences (about 2 hours of preparation will be required per day), in-class lectures, hands-on laboratory exercises with a variety of data sets, and a capstone project. The course will use the Python programming language. Participants are required to bring their own computer to the daily sessions. 
 
 ### Schedule (tentative)
 #### Typical daily schedule (unless otherwise noted)
 - 9:00am-10:30pm: Session 1 (Lecture)
 - 10:30am-11:00am: Break
-- 11:00am-12:00pm: Session 2 (1h lab)
+- 11:00am-12:00pm: Session 2 
 - 12:00pm-1:00pm: Lunch Break
 - 1:00pm-2:30pm: Session 3 (30 min Q&A + 1h lab)
 - 2:30pm-3:00pm: Break
