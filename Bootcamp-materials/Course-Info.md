@@ -20,10 +20,10 @@ The course is a blend of readings (about an hour of reading will be required per
 #### Day 1: May 21st, 2018: INTRODUCTION TO DATA SCIENCE 
 - **Topics**: Introduction to Data Science; Introduction to R/Python
 - **Lab**: Getting started with Python/R/Stata, data processing and summary
-- **Readings**: Justin Grimmer and Brandon Stewart <a href="https://web.stanford.edu/~jgrimmer/tad2.pdf" _target=_blank>"Text as Data: The Promise and Pitfalls of Automatic Content Analysis Methods for Political Texts"</a><br>
-Kenneth Benoit, et. al. <a href="http://eprints.lse.ac.uk/62242/1/Crowd_sourced1.pdf" _target=_blank>"Crowd-sourced text analysis: reproducible and agile production of political data"</a><br>
-Trevor Owens, <a href="http://journalofdigitalhumanities.org/1-1/defining-data-for-humanists-by-trevor-owens/" _target=_blank>"Defining Data for Humanists: Text, Artifact, Information or Evidence?"</a><br>
-<a href="https://cran.r-project.org/doc/contrib/Short-refcard.pdf" _target=_blank>Reference card for R</a>
+- **Readings**: Justin Grimmer and Brandon Stewart <a href="https://web.stanford.edu/~jgrimmer/tad2.pdf" target=_blank>"Text as Data: The Promise and Pitfalls of Automatic Content Analysis Methods for Political Texts"</a><br>
+Kenneth Benoit, et. al. <a href="http://eprints.lse.ac.uk/62242/1/Crowd_sourced1.pdf" target=_blank>"Crowd-sourced text analysis: reproducible and agile production of political data"</a><br>
+Trevor Owens, <a href="http://journalofdigitalhumanities.org/1-1/defining-data-for-humanists-by-trevor-owens/" target=_blank>"Defining Data for Humanists: Text, Artifact, Information or Evidence?"</a><br>
+<a href="https://cran.r-project.org/doc/contrib/Short-refcard.pdf" target=_blank>Reference card for R</a>
 
 #### Day 2: May 22nd, 2018: EXPLORING DATA 
 - **Topics**: Exploratory data analysis; summarize and quantify variation and association
@@ -53,20 +53,20 @@ BeautifulSoup, part 1: <a href="http://web.stanford.edu/~zlotnick/TextAsData/Web
 #### Day 7: May 30th, 2018: Pre-processing text data/Quanteda 
 - **Topics**: string functions and regular expressions, bag of words; introduction to Quanteda
 - **Lab**: Using string functions; creating bags of words; bringing text data into Quanteda
-- **Readings**: <a href="http://docs.quanteda.io/articles/pkgdown/quickstart.html" _target=_blank>Quanteda Quickstart</a>
+- **Readings**: <a href="http://docs.quanteda.io/articles/pkgdown/quickstart.html" target=_blank>Quanteda Quickstart</a>
 
 #### Day 8: May 31st, 2018: Basic textual analysis 
 - **Topics**: summary statistics, graphs, classifiers
 - **Lab**: Key words in context; wordclouds; Naive Bayesian classifiers
-- **Readings**: <a href="http://docs.quanteda.io/articles/pkgdown/replication/qss.html" _target=_blank>Replicating Federalist Paper Author attribution</a><br>
-Vincent D'Orazio, et. al. <a href="https://doi.org/10.1093/pan/mpt030" _target=_blank>"Separating the Wheat from the Chaff: Applications of Automated Document Classification Using Support Vector Machines"</a><br>
+- **Readings**: <a href="http://docs.quanteda.io/articles/pkgdown/replication/qss.html" target=_blank>Replicating Federalist Paper Author attribution</a><br>
+Vincent D'Orazio, et. al. <a href="https://doi.org/10.1093/pan/mpt030" target=_blank>"Separating the Wheat from the Chaff: Applications of Automated Document Classification Using Support Vector Machines"</a><br>
 
 #### Day 9: June 1st, 2018: Advanced topics 
 - **Topics**: Topic models and social network analysis
 - **Lab**: LDA; network analysis; clustering; topic models
- - **Readings**: John Patty and Elizabeth Penn <a href="https://doi.org/10.1093/oxfordhb/9780190228217.013.12" _target=_blank>"Network Theory and Political Science"</a><br>
-Christopher Lucas, et. al. <a href="https://doi.org/10.1093/pan/mpu019" _target=_blank>"Computer-Assisted Text Analysis for Comparative Politics"</a><br>
-<a href="http://sappingattention.blogspot.com/2012/11/when-you-have-mallet-everything-looks.html" _target=_blank>Topic modeling fun</a><br>
-<a href="https://medium.freecodecamp.org/how-we-changed-unsupervised-lda-to-semi-supervised-guidedlda-e36a95f3a164" _target=_blank>Advances in topic modeling</a>
+ - **Readings**: John Patty and Elizabeth Penn <a href="https://doi.org/10.1093/oxfordhb/9780190228217.013.12" target=_blank>"Network Theory and Political Science"</a><br>
+Christopher Lucas, et. al. <a href="https://doi.org/10.1093/pan/mpu019" target=_blank>"Computer-Assisted Text Analysis for Comparative Politics"</a><br>
+<a href="http://sappingattention.blogspot.com/2012/11/when-you-have-mallet-everything-looks.html" target=_blank>Topic modeling fun</a><br>
+<a href="https://medium.freecodecamp.org/how-we-changed-unsupervised-lda-to-semi-supervised-guidedlda-e36a95f3a164" target=_blank>Advances in topic modeling</a>
 
  
