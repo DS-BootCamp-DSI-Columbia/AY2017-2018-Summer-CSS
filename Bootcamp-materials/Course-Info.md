@@ -36,12 +36,12 @@ Trevor Owens, <a href="http://journalofdigitalhumanities.org/1-1/defining-data-f
 - **Readings**: None
 
 #### Day 4: May 24th, 2018: INTRODUCTION TO MACHINE LEARNING (1) 
-- **Topics**: unsupervised learning - clustering, association mining, embedding (factorization)
-- **Lab**: PCA, latent variable modeling, multidimensional scaling
+- **Topics**: Intro to Machine Learning, Supervised learning: classification, KNN, Naive Bayes
+- **Lab**: classification, KNN, Naive Bayes, cross-validation
  
 #### Day 5: May 25th, 2018: INTRODUCTION TO MACHINE LEARNING (2) 
-- **Topics**: predictive analytics/supervised learning, KNN, regression tree; Brief intro to recent advances such as deep learning
-- **Lab**: KNN and regression tree
+- **Topics**: Clustering, PCA, LSA
+- **Lab**: Clustering, PCA, LSA
  
 #### Day 6: May 29th, 2018: WORKING WITH DIGITAL TEXT 
 - **Topics**: Text as data
