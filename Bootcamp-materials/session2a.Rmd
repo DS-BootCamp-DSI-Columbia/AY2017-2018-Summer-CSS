@@ -1,0 +1,189 @@
+---
+title: "Graphing"
+author: "Raymond Hicks"
+date: "May 14, 2018"
+#output: html_document
+output: slidy_presentation
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Graphs
+This markdown will cover how to do various graphs in R. 
+We will use 
+
+``` {r setup example data}
+setwd('c:/Users/arpie71/dropbox/columbia/workshop/data')
+trade76 <- read.csv(file="trade76.csv", header=TRUE, sep=",")
+str(trade76)
+```
+# One-way graphs
+## Histograms
+Plot only single variable. Shows distribution of variable using frequency or density.
+To plot the density, change the <i>frequency</i> option to false.
+You can also set the number of bins using the <i>breaks</i> option.
+
+
+
+``` {r histogram}
+hist(trade76$lnX)
+hist(trade76$lnX, freq=FALSE)
+hist(trade76$lngdp, freq=TRUE, breaks=10)
+
+
+```
+
+
+## Bar and area graphs
+For these two types of graphs, the ggplot2 library is best. 
+We will first look at some one way graphs (only one variable plotted) and the move into two way plots (two variables plotted).
+For both the one-way bar and area graphs, we will plot the same variable from the same data repeatedly so we will designate it with the object name p. We will then plot the graphs using lngdp by specifying p and then the type of graph we want. 
+
+ggplot also plots histograms but the syntax is a little more cumbersome than the <b>hist()</b> command.
+
+ggplot(trade76,aes(x=lngdp))+geom_histogram(bins=11, na.rm=TRUE)
+ggplot(trade76,aes(x=lngdp,y=..density..))+geom_histogram(bins=11, na.rm=TRUE)
+
+``` {r graphs oneway}
+library(ggplot2)
+p<-ggplot(trade76,aes(x=lngdp))
+p+geom_bar(stat="bin", bins=11, na.rm=T)+labs(title="Bar graph, 11 bins")
+p+geom_area(stat='bin', bins=11, na.rm=T)+labs(title="Area graph, 11 bins")
+p+geom_histogram(stat='bin', bins=11, na.rm=T)+labs(title="Histogram, 11 bins")
+
+
+```
+
+# Bar graphs
+Bar graphs work better with categorical data. As shown above, with continuous variables they will bin the variable into different categories and look like histograms. 
+We will now go over how to do bar graphs with a categorical variable.
+
+```{r bar graphs}
+trtxt<-read.csv('c:/Users/arpie71/Dropbox/Columbia/workshop/data/tradetext.tab', sep='|', header=TRUE)
+# clean data
+trtxt$body<-as.character(trtxt$body)
+trtxt$id<-as.character(trtxt$id)
+trtxt[is.na(trtxt)]<- 0
+trtxt$date=as.Date(trtxt$date,format="%d%b%Y")
+trtxt$month = as.numeric(format(trtxt$date,"%m"))
+p2<-ggplot(trtxt, aes(x=pclass))
+p2+geom_bar(stat='count')
+
+ggplot(trtxt,aes(x=factor(""), fill=pclass,),)+geom_bar( )+scale_x_discrete("Classification")
+
+ggplot(trade76,aes(y=ccode,x=lnX))+geom_area()
+
+```
+
+# Bar charts with two variables
+We can also plot bar charts with two variables. 
+We have a variable equal to the month in the data so we can plot the number of classified documents in each month. 
+As before, we show both a stacked and then a non-stacked version.
+
+
+``` {r twoway bar charts}
+
+ggplot(trtxt,aes(x=month, fill=pclass))+geom_bar()
+
+ggplot(trtxt,aes(x=month, fill=pclass))+geom_bar(position="dodge")
+
+
+```
+
+# Subsetting data
+Most of the State Department reports have an "n/a" classification so they are dominating the bars. It is difficult to see what is happening with the other categories. 
+ggplot allows us to subset the data to exclude those values
+
+``` {r subset ggplot}
+ggplot(data=subset(trtxt,trtxt$pclass!="n/a"),aes(x=factor(""), fill=pclass))+geom_bar(position="dodge")
+ggplot(data=subset(trtxt,trtxt$pclass!="n/a"),aes(x=month, fill=pclass))+geom_bar(position="dodge")
+
+```
+
+# Area graphs
+
+```{r area}
+
+
+
+# Twoway
+ggplot(subset(trade76,trade76$ccode<1000),aes(x=lngdp,y=lnX , na.rm=TRUE))+geom_area()+labs(x="GDP", y="Exports")
+
+#ggplot(trade76,aes(x=lngdp,y=lnX))+geom_area()
+
+```
+
+
+# Scatterplots
+As with histograms, we can create scatterplots using  either a native R function or ggplot2.
+Note that R plots the X variable first and then the Y variable.
+Other programs plot Y and then X. 
+
+``` {r scatter}
+plot(trade76$lnpromote, trade76$lnX)
+
+plot(trade76$lnpromote, trade76$lnX, xlab="Trade promotion", ylab="Exports")
+plot(trade76$lnpromote, trade76$lnX, xlab="Trade promotion", ylab="Exports", main="Relationship between Promotion and exports, 1976")
+ggplot(trade76,aes(y=lnX, x=lngdp), x)+geom_point(na.rm=TRUE)+labs(x="Trade promotion",y="Exports", title="Relationship between Promotion and exports, 1976")
+
+ggplot(trade76,aes(y=lnX, x=lngdp), x)+geom_point(na.rm=TRUE)+labs(x="Trade promotion",y="Exports", title="Relationship between Promotion and exports", subtitle="1976")
+
+
+```
+
+# Line graphs
+Line graphs are functional but usually best if you have some sort of order to one of the variables. 
+It works well in plotting values over time. It does not work so well if you just plot two variables against each other.
+(see below)
+The nice thing (I guess) is that ggplot tries to order a line graph for you. It assumes that you mean to sort the data by the X variable and connects the line for you.
+
+``` {r line graph}
+
+plot(trade76$lnpromote, trade76$lnX, xlab="Trade promotion", ylab="Exports", type='l')
+ggplot(trade76, aes(lnpromote, lnX))+geom_line(na.rm=TRUE)
+```
+
+
+# Boxplots
+Boxplots are another way to sumarize data. They show the median and the quantiles in the box.
+The whiskers represent the quantiles within 1.5 times the IQR.
+We can plot a single variable by telling ggplot that the x variable is empty.
+(What happens if we make y empty?)
+
+Or we can do two-way box plots. 
+For two-way box plots we will want to group continuous variables. 
+One option is the <i>cut_width</i> suboption.
+
+
+``` {r boxplot}
+summary(trade76$lnX)
+ggplot(trade76, aes(x="",y=lnX))+geom_boxplot()
+
+ggplot(trade76, aes(gatt_d, lnX))+geom_boxplot(aes(group=gatt_d))
+
+ggplot(trade76, aes(lngdp, lnX))+geom_boxplot(aes(group=cut_width(lngdp,2)))
+
+```
+
+
+# Extensions
+R is very good at graphing. We have just touched on some of the things that can be done. 
+In the coming days I will try to show other types of graphs: coefficient plots, word clouds, word frequencies.
+There are still others that you could learn.
+We have barely touched the surface of the ggplot options. 
+
+One graph that will be helpful for the future is a three-way scatter plot.
+We will graph Promotion and Exports but weight the size of the circles by a country's GDP. 
+
+``` {r three-way scatter}
+
+ggplot(trade76, aes(lnpromote, lnX))+geom_point(aes(size = lngdp), na.rm=TRUE)
+
+ggplot(trade76, aes(lnpromote, lnX))+geom_point(aes(size = exp(lngdp)/1000), na.rm=TRUE)
+
+
+```
+

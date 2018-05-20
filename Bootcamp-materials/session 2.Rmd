@@ -1,0 +1,167 @@
+---
+title: "Summary stats"
+author: "Raymond Hicks"
+date: "May 15, 2018"
+#output: html_document
+output: slidy_presentation
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Summary statistics in R
+- Briefly go over how to do summary statistics
+- Relationship tests (Chi-Squared, t-tests)
+
+``` {r setup example data}
+setwd('c:/Users/arpie71/dropbox/columbia/workshop/data')
+trade76 <- read.csv(file="trade76.csv", header=TRUE, sep=",")
+str(trade76)
+```
+
+# Summarizing single column
+For most summary statistics, we just wrap the statistic around the column we would like summarized. 
+
+- mean(trade76$lnX)
+- median(trade76$lnX)
+- max(trade76\$lnX) , min(trade76\$lnX)
+- sd(trade76\$lnX), var(trade76\$lnX)
+
+
+## na.rm
+By default, R does not remove missing values from its calculation. If you have missing values, R will not calculate many of the summary statistics.
+With real-world data, this is often a problem. If we ran those commands we would get NA as an output because lnX has missing data.
+
+``` {r sumstats}
+mean(trade76$lnX )
+mean(trade76$lnX , na.rm=TRUE)
+median(trade76$lnX , na.rm=TRUE)
+max(trade76$lnX , na.rm=TRUE)
+min(trade76$lnX , na.rm=TRUE)
+sd(trade76$lnX , na.rm=TRUE) 
+var(trade76$lnX , na.rm=TRUE)
+IQR(trade76$lnX , na.rm=TRUE)
+
+```
+
+# Multiple columns
+What if we would like to summarize multiple columns at once?
+R thinks differently than Stata. 
+
+We will use <b>apply</b> functions to run commands on multiple columns.
+
+- lapply
+-- apply function and return results as list
+
+- sapply
+-- apply function and return results as vector
+
+<b>sapply(trade76, mean, na.rm=T)</b>
+
+The command says for all columns of trade76, use the mean function and remove missing values.
+
+Later in the course we will see more complicated versions of the apply command. 
+
+We can also limit the number of columns that we use with the <b>apply</b> commands.
+<b>sapply(trade76[,c('bdis','lnX','lnM')], mean, na.rm=T)</b>
+
+
+```{r multiple columns}
+
+## Multiple columns at once
+sapply(trade76, mean, na.rm=T)
+lapply(trade76, mean, na.rm=T)
+
+sapply(trade76[,c('bdis','lnX','lnM')], mean, na.rm=T)
+```
+
+
+# Cross-tabs
+We will quickly cover cross-tabs in R.
+With a lot of things in R, you can build using multiple parts. 
+The benefit is that you can create the parts separately. The drawback is that it is not always easy for me to remember what I've created. RStudio makes it easier because it gives you different options as you start typing.
+
+We will create cross-tabs with the <b>table</b> command and then add totals using <b>addmargins</b> and get proportions using <b>prop.table</b>.
+
+then we will put it all together.
+
+``` {r cross-tabs}
+
+## create t1 object
+t1<-table(trade76$gatt_d,trade76$comlang_off)
+t1
+
+# Now with column names
+t1<-table(GATT=trade76$gatt_d,Language=trade76$comlang_off)
+
+# Margins (i.e., totals)
+addmargins(t1)
+# proportions
+prop.table(t1)
+# rows sum to 1
+prop.table(t1 , margin = 1)
+# cols sum to 1
+prop.table(t1 , margin = 2)
+
+addmargins(prop.table(t1))
+
+
+# Continuous variables
+table(GDP= cut(trade76$lngdp, breaks=seq(0,14, by=1)), GATT=trade76$gatt_d)
+
+```
+
+# Measures of association
+## Correlation
+Again, missing values are important.
+With the <b>cor</b> command, R does not recognize <i>na.rm=TRUE</i>. To tell R to ignore missing observations, we use the <i>use</i> suboption.
+
+``` {r correlation}
+cor(trade76$lnX, trade76$lnM)
+
+cor(trade76$lnX, trade76$lnM , use="complete.obs")
+
+```
+
+
+# Chi-Squared
+
+Next we will run a couple of chi-squared tests. 
+First is a 2x2 table comparing GATT membership to English-speaking.
+
+We then test on a continous variable grouping the log of GDP into 14 groups and comparing these categories to GATT membership.
+
+Finally, we create a categorical variable based on the number of trade promotion reports and compare that categorical variable to GATT mebership.
+
+``` {r chi-squared}
+
+# Chi-squared
+chisq.test(trade76$gatt_d, trade76$comlang_off)
+chisq.test(cut(trade76$lngdp, breaks=seq(0,14, by=1)), trade76$gatt_d)
+chisq.test(trade76$btio, trade76$gatt_d)
+trade76$btiocat<-ifelse(trade76$btio==0,0,ifelse(trade76$btio>0&trade76$btio<11,1,ifelse(trade76$btio>=11&trade76$btio<50,2,3)))
+chisq.test(trade76$btiocat,trade76$gatt_d)
+```
+
+# T-tests
+As a last coding example, we will perform a couple of silly t-tests using the trade data.
+
+The first compares the average US exports to non-GATT and to GATT members.
+There are lots of arguments in the economics literature that GATT countries should trade more.
+
+We can reject the hypothesis that there is no difference in US exports to GATT and non-GATT countries.
+
+Second, does the US export more to countries that speak English. 
+Again there are arguments that a common language eases transaction costs as it makes trade easier to conduct. 
+Here, we cannot reject the null hypothesis that there is no difference in US exports to English and to non-English speaking countries. 
+
+
+``` {r t-tests}
+# T-tests
+t.test(trade76$lnX[trade76$gatt_d==0] , trade76$lnX[trade76$gatt_d==1])
+t.test(trade76$lnX[trade76$comlang_off==0] , trade76$lnX[trade76$comlang_off==1])
+
+```
+
+

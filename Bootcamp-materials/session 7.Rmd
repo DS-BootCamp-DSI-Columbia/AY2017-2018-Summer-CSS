@@ -1,0 +1,212 @@
+---
+title: "String functions"
+author: "Raymond Hicks"
+date: "May 4, 2018"
+#output: html_document
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+# Strings - Setup data
+This markdown will cover different string functions that you can use with texutal data.
+
+As always we will start by setting the directory and reading in the data. The example will be, as in the lecture, Poe's The Raven.
+
+R brings in the text data as a factor so we will convert it to a character format.
+
+<b>raven\$text<-gsub("\\s+"," ",raven\$text)</b> will replace multiple spaces with a single space.
+
+<b>raven\$text<-trimws(raven$text)</b> removes leading and trailing spaces.
+
+
+``` {r setup data }
+library(plyr)
+setwd('c:/Users/arpie71/dropbox/columbia/workshop/data')
+raven <- read.csv(file="ravenraw.csv", header=TRUE, sep=",")
+raven$text<-as.character(raven$text)
+raven$text<-gsub("\\s+"," ",raven$text)
+raven$text<-trimws(raven$text)
+#Alternative if we want to do same thing over all columns in dataframe
+raven[]<-lapply(raven, function(x) gsub("\\s+"," ",x))
+raven[]<-lapply(raven, function(x) trimws(x))
+
+```
+
+# Substrings
+## Useful
+We want to get the first four characters of each string in the id list. These are documents IDs from State Department reports so the first four numbers represent the year of the report. The last five numbers are an identifier of a number within the year. 
+
+The middle part is the embassy the cable came from. 
+
+Because the pattern is the same, we can use substring to extract each part.
+
+R takes the position of the first character to the position of the last character of the substring. 
+
+<b>yrs<-substring(id,1,4)</b> tells R to take the first character through the fourth character. 
+
+<i>nchars</i> is the total number of characters in the string.
+
+```{r useful substring}
+id<-c("1978TEHRAN12797", "1979ASUNCI02309", "1978TEHRAN00041", "1977TEHRAN10991", "1976TEHRAN11243", "1976TEHRAN11244")
+yrs<-substring(id,1,4)
+print(yrs)
+idno<-substring(id,nchar(id)-4,nchar(id))
+print(idno)
+emb<-substring(id,5,nchar(id)-5)
+print(emb)
+
+```
+# Substring
+## Not useful
+In this case, the ID was the same for all 6 cases, but the same code would work if the number of characters representing the embassy varied, as long as the year was four digit and the doc number 5 digits.
+
+Now we will look at a case where the substring command is not very helpful. Let's say we want to look at the first 5 characters of each stanza of the Raven. 
+
+We cannot infer very much from the substring.
+
+``` {r Raven substring}
+#print(lapply(raven, function(x) substring(x,1,5)))
+print(substring(raven$text,1,5))
+
+```
+
+# Regular expressions
+We will now begin to play with regular expressions. There is a lot to them so we will barely scratch the surface. There is lots of online help available if you need to go into regular expressions in more depth.
+
+We could not use substring to easily extract the first word of each stanza because the first words are of differing lenghts. Let's start by extracting the first word of each stanza. 
+
+Also, I put a space after the search pattern to show the potential difficulty. Without the space, we will search for alphabetic characters until we hit a non-alphabetic one, so the regex will work well without the space.
+
+``` {r regex1}
+m<-gregexpr("^[A-Z][a-z]+ ", raven$text)
+print(regmatches(raven$text,m))
+
+m<-gregexpr("^[A-Z][a-z]+", raven$text)
+print(regmatches(raven$text,m))
+
+```
+
+# Special features of regular expressions
+
+"^" searches from beginning of string
+
+"$" searches for pattern at end of string
+
+"[]" searches for any pattern within bracket
+
+"+" searches for any number of occurrences of the pattern.
+
+So [A-Z] would search for any capital letter while [a-z] searches any lower case
+
+
+
+```{r specialfeatures}
+regmatches(raven$text,gregexpr("[a-z]\\.$",raven$text))
+regmatches(raven$text,gregexpr("^[AEIOU]+",raven$text))
+
+```
+
+
+# More regular expressions
+## Finding "the""
+First, let's explore something a little silly. We will see how many times Poe uses the word "the." The first thing to notice is that there are two parts. The first part basically defines the search pattern and the text to search on. You enter the search pattern first and then the text to search. 
+
+The second part then gets all possible matches. Here the text to search is placed first and then the results of the first matching is placed second. We will combine the two parts into one command in future examples but it is important to understand that there are two parts. 
+
+
+``` {r finding the}
+m<-gregexpr("the",raven$text)
+regmatches(raven$text,m)
+
+```
+
+# Finding the?
+That's a lot of matches, especially in the fourth stanza. And we know that there is no "the" in the first stanza, so why do we find one?
+
+## spaces
+If we put a space before and after "the" we will get all matches.
+
+
+``` {r finding the part 2}
+m<-gregexpr(" the ",raven$text)
+print(regmatches(raven$text,m))
+
+```
+
+# Other searches
+## "OOR" sounds
+The pipe (|) symbol finds either match in parentheses.
+[[:punct:]] tell R to search for any punctuation mark.
+This enables us to find the "OOR" sounds that have a period or comma after them.
+
+
+``` {r other searches}
+regmatches(raven$text,gregexpr("ore |oor ", raven$text))
+regmatches(raven$text, gregexpr(" [A-Za-z]+(ore |oor )", raven$text))
+
+regmatches(raven$text, gregexpr(" [A-Za-z]+(ore|oor)([[:punct:]]| )", raven$text))
+```
+
+# Bag of words
+Now we will construct a bag of words ourselves.
+There are a couple of cleaning operations to perform first.
+
+We will create a duplicate of our dataframe and then remove punctuation and convert the text to all lower case.
+These are both standard operations when creating a bag of words since we only want the words.
+
+```{r bow setup}
+raven4 = raven
+
+gsub("[[:punct:]]","",raven4$text)
+raven4$text<-tolower(raven4$text)
+```
+
+# Bag of Words Setup
+We will get a list of words in the Raven.
+
+There are a few ways we can extract the words. 
+
+We could use regex to find all [A-Za-z].
+
+We could use regex and R's "\\w" option which which looks for alphanumeric characters.
+
+Or we could avoid regex and use strsplit, splitting the text by whitespace.
+
+I will use [A-Za-z] here but would note that it works only because there are no words with numbers in them.
+If there were, we would not catch them with this command.
+
+
+```{r setupbow}
+
+wdlist<-regmatches(raven4$text, gregexpr("[A-Za-z]+", raven4$text))
+#wdlist1<-regmatches(raven4$text, gregexpr("\\w+", raven4$text))
+#wdlist2<-strsplit(raven4$text," ")
+```
+
+# Loop over word list
+There is probably an easier way to do this.
+The count function is from the package plyr.
+For each of the 5 stanzas we create a dataframe t with the word name, the frequency, and the stanza number.
+the first time through we create the final dataframe. 
+Each subsequent time through we basically append the next stanza to the final dataframe.
+
+And the bag of words is created.
+
+```{r bow loop}
+for(i in 1:5 ) {
+  t<-cbind(count(as.data.frame(wdlist[i])),i)
+  colnames(t)[1]='word'
+  colnames(t)[3] = 'doc'
+  if (i==1) {
+    r <- t
+  } else {
+    r<-rbind(r,t)
+}
+  }
+
+print(r[1:10,])
+r[with(r, order(word)),][1:10,]
+```
+

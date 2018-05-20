@@ -1,0 +1,201 @@
+---
+title: "Session 1"
+author: "Raymond Hicks"
+date: "May 15, 2018"
+#output: html_document
+output: slidy_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_knit$set(root.dir='c:/Users/arpie71/dropbox/columbia/workshop/data')
+```
+
+# Introduction to R
+## Installing and loading packages
+
+There are two ways to install packages. You can use the <b>install.packages</b> command. Or you can use the dropdown menu in RStudio.
+The dropdown is Tools->Install Packages.
+You only need to install packages once so it might make sense to use the dropdown.
+In the first part of the lab, we will get R ready and install the relevant packages you will need.
+R is annoying though and when you update it installs in a new directory. Sometimes the old packages need to be reinstalled using the new version. So updating can be a major task.
+
+``` {r install and load packages}
+#install.packages('quanteda')
+# R ignores lines starting with a # 
+# They are useful to add comments to files 
+library(quanteda)
+
+```
+
+# Directories
+
+Where are your files? 
+You can see which directory you are in with the <b>getwd()</b> command.
+<b>setwd()</b> changes the current directory. 
+The <b>wd</b> parts of the commands are short for Working Directory.
+The <b>list.files()</b> command will list the files in the working directory.
+
+``` {r file locations}
+getwd()
+setwd('c:/Users/arpie71/dropbox/columbia/workshop/data')
+list.files()
+
+```
+
+# Opening files
+We will do most of the work in R using either comma-delimited (csv) or tab-delimited files (txt,tsv).
+For both, we will use the <b>read.csv</b> command. 
+The <i>header</i> suboption tells us whether the file has column names.
+The <i>sep</i> suboption tells us what delimiter is used to separate columns of data.
+
+``` {r use data}
+setwd('c:/Users/arpie71/dropbox/columbia/workshop/data')
+elec_data <- read.csv(file="2016_presidential_election_results.tsv", header=TRUE, sep="\t")
+fs_data <- read.csv('2015_monthly_average_of_person_participating_in_food_stamp_program.tsv', header=TRUE, sep="\t")
+income_data <- read.csv('2015_median_annual_hosehold_income.tsv', header=TRUE, sep="\t")
+sa <- read.csv('state_abbreviations.tsv', header=TRUE, sep="\t")
+census_data <- read.csv('population_by_state.tsv', header=TRUE, sep="\t")
+income_data = read.csv('2015_median_annual_hosehold_income.tsv', header=TRUE, sep="\t")
+trade76 <- read.csv(file="trade76.csv", header=TRUE, sep=",")
+
+```
+
+# Data
+## investigating the data frame
+
+``` {r investigate}
+
+str(elec_data) # Structure of data
+names(elec_data) # Column names
+class(elec_data) # Format of data
+
+
+
+
+```
+
+# Looking at data
+There are many different options to look at data. We will go over a few and their equivalencies.
+
+## Top rows
+There are a couple of ways to view the top rows. 
+R has a <b>head</b> command similar to Python's <b>DF.head()</b> command.
+We could also ask for the first N rows: elec_data[1:5,]
+
+## Specific observations
+There are different ways to view the contents of an individual row. 
+The dataframe is like a matrix and we refer to observations within the matrix using square brackets ([]).
+The first reference is to the row and the second to the column.
+So we can ask R to return the row where State is equal to "New Jersey" by specifying the condition as the row option:
+elec_data[elec_data$State=='New Jersey',]
+
+``` {r datalook}
+head(elec_data,5)
+elec_data[1:5,]
+
+# List  New Jersey data
+elec_data$State=='New Jersey' # WRONG
+elec_data[elec_data$State=='New Jersey',]
+elec_data[31,]
+
+
+```
+
+
+# Specific columns within observations
+The second part in the square brackets is the column information. If we leave it blank it returns all columns.
+We can get a selected column by specifying its name.
+elec_data[elec_data$State=='New Jersey','Sum']
+
+For multiple columns, we need to use the combine feature in R.
+This holds  a list or vector of names.
+vlist<-c('Sum','Clinton','Trump')
+Or we could specify it directly into the columns.
+
+## Multiple rows
+
+There are a couple of ways we could list multiple rows.
+The combine feature is more like an "and" qualifier so it will not work with rows.
+We could specifically ask for rows using the "|" symbol.
+Or we could use the "in" option and the combine feature.
+This tells R to list the row if State is in the list within combine.
+
+``` {r mulitple obs}
+# List specific columns for NJ 
+
+elec_data[elec_data$State=='New Jersey','Sum']
+
+# List multiple columns
+vlist<-c('Sum','Clinton','Trump')
+elec_data[elec_data$State=='New Jersey',vlist]
+
+elec_data[elec_data$State=='New Jersey',c('Sum','Clinton','Trump')]
+
+# List multiple rows
+
+elec_data[(elec_data$State=='New Jersey'| elec_data$State=='New York'),c('Sum','Clinton','Trump')]
+r <- c("New Jersey", "New York")
+elec_data[elec_data$State %in% r ,c('Sum','Clinton','Trump')]
+elec_data[elec_data$State %in% c("New Jersey","New York") ,c('Sum','Clinton','Trump')]
+
+
+```
+
+
+
+
+# Merging data
+R's merge function is conveniently called <b>merge</b>. 
+It's more useful than Stata's in some ways. You do not have to merge on variables with the same name. Instead, you could specify the merge variable separately for each dataset.
+In the examples below if one of the datasets called the State variable StateName rather than State, we would pass that information to R:
+
+df <- merge(elec_data, fs_data, by.x ='State', by.y= 'StateName')
+
+
+``` {r merging}
+
+df <- merge(elec_data, fs_data, by ='State')
+dim(df) # equivalent to df.shape in Python
+df <- merge(df, sa, by = 'State')
+df <- merge(df, income_data, by='State')
+df <- merge(df, census_data , by = 'State')
+dim(df)
+
+```
+
+# Creating new columns
+- Finally, we will briefly cover how to create new columns in R. 
+
+-- We can create a new column based on data in existing columns.
+--- df\$Trump_perc=df$Trump/(df\$Clinton+df\$Trump+df\$Johnson)
+-- Or create new columns based on mathematical functions
+--- elec_data\$numid<-seq(1:nrow(elec_data))
+--- elec_data\$lnsum<-log(elec_data$Sum)
+
+
+
+``` {r new columns}
+
+df$Trump_perc=df$Trump/(df$Clinton+df$Trump+df$Johnson)
+df$fs_perc=df$Participation/df$Population
+df$vote_perc=(df$Clinton+df$Trump+df$Johnson)/df$Population
+df$Trump_win=(df$Trump>df$Clinton)
+
+# Sequence
+df$numid<-seq(1:nrow(df))
+#squared
+df$numid2<-seq(1:nrow(df))^2
+
+# Log of column
+df$lnsum<-log(df$Sum)
+```
+
+# Save dataframe
+
+- To save dataframe
+-- save(df, file="elect.RData")
+
+```{r save}
+save(df, file="c:/Users/arpie71/Dropbox/Columbia/workshop/datafiles/elect.RData")
+```

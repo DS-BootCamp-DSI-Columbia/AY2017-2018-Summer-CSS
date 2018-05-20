@@ -1,0 +1,289 @@
+---
+title: "session8b"
+author: "Raymond Hicks"
+date: "May 15, 2018"
+#output: html_document
+output: 
+  slidy_presentation: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(ggplot2)
+require(caret)
+library(quanteda)
+trtxt<-read.csv('c:/Users/arpie71/Dropbox/Columbia/workshop/data/tradetext.tab', sep='|', header=TRUE)
+# clean data
+trtxt$body<-as.character(trtxt$body)
+trtxt$id<-as.character(trtxt$id)
+trtxt[is.na(trtxt)]<- 0
+trtxt$date=as.Date(trtxt$date,format="%d%b%Y")
+trcorp<-corpus(trtxt, docid_field='id',text_field='body', )
+dfmTR <- dfm(trcorp,  remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+
+
+```
+
+       
+# Classification
+The Federalist paper example used a simple linear model to attribute authorship.
+Let's try something similar with the textual data we've been looking at. 
+We know that State Department Reports tagged with an SENV tag look different than those with a BTIO tag.
+Can we use that information to classify the documents?
+First, we will set up the data.
+
+``` {R beginning}
+
+
+
+wds1<-c('meeting','environmental','water','epa','request','conference','soviet','tender','equipment','firms','berlin','project','interested','reply')
+#dfmTR
+tfm <- dfm_weight(dfmTR, "prop") * 1000
+tfm <- dfm_select(tfm, wds1, valuetype = "fixed")
+test_data <- data.frame(docvars(trcorp), tfm)
+
+```
+
+# Model
+Now we will fit the model. The dependent variable is whether the document has an SENV tag. 
+We will use a logit model for the data because the dependent variable is dichotomous.
+The independent variables are the proportions of the key words used in the two types of documents. 
+
+
+``` {R logitmodels}
+senv_fit <- glm(senv ~ meeting + environmental+water+epa+request+conference+soviet+tender+equipment+firms+berlin+project+interested+reply,
+             data = test_data, family=binomial(link='logit'))
+summary(senv_fit)
+
+senv_fitted <- fitted(senv_fit) # fitted values
+
+```
+# Deviance
+How much does each feature contribute to the model? 
+We know that project was used a lot in both types of documents so it should have the least impact of any word. 
+Surprisingly, water does not have that large an impact. 
+
+```{r deviance}
+anova(senv_fit, test="Chisq")
+
+```
+
+# Evaluate Model
+- The confusionMatrix command is from the caret package.
+- The No Information Rate is the accurracy we would have if we guessed every document had the SENV tag. 
+- Accuracy = (TP+TN)/(TP+TN+FP+FN)
+ = Proportion correctly classified
+- Precision = TP /(TP + FP)
+ = Actual true among classified true
+- Recall = TP/(TP+FN)
+ =Actual true among all true
+- F1 = 2 * (Precision*Recall)/(Precision + Recall)
+
+
+
+```{r evaluate model}
+
+test_data<-cbind(test_data,senv_fitted)
+test_data$senvhat<-ifelse(senv_fitted>=.5,1,0)
+glmtab<-table(test_data$senvhat, test_data$senv)
+glmtab
+prop.table(table(Predict=test_data$senvhat, Actual=test_data$senv))
+confusionMatrix(glmtab, mode="everything")
+
+```
+
+# Training data rather than full sample
+First, we will create a training set of documents. We have 5600 documents so let's treat 500 as training data.
+
+We will create 500 random integers in the range 1 to 5598. 
+
+``` {r training}
+
+set.seed(20309)
+id_train<-sample(1:5598,500, replace=FALSE)
+id_train100<-id_train[1:100]
+id_train50<-id_train[451:500]
+id_train150<-id_train[101:250]
+id_train200<-id_train[251:450]
+
+head(id_train,10)
+```
+
+# Subset data
+Next, we create a new corpus comprise of the documents whose ID are in the random ID list.
+We then set up training and test DFMs based on whether the document is in the training list.
+
+Our IVs are the proportion of each feature in the document so we convert both DFMs to a proportion measure and then select only the words we used before.  To ensure that there are no missing values we select in the test sample DFM only proportions that are in the training one.
+
+```{r subset data and create dfms}
+docvars(trcorp,"id_numeric")<-1:ndoc(trcorp)
+tc1<-corpus_subset(trcorp,id_numeric %in% id_train)
+# TRAINING DFM
+train1_dfm <-dfm(tc1, remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+# TEST DFM
+test1_dfm<-corpus_subset(trcorp , !id_numeric %in% id_train) %>% dfm(remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+
+tfm1 <- dfm_weight(train1_dfm, "prop") * 1000
+tfm1 <- dfm_select(tfm1, wds1, valuetype = "fixed")
+
+tfm2<-dfm_weight(test1_dfm, "prop") *1000
+tfm2<-dfm_select(tfm2,wds1,valuetype="fixed")
+
+test1_dfm<-dfm_select(tfm2,train1_dfm)
+
+train1_data <- data.frame(docvars(tc1), tfm1)
+```
+
+# Training model
+Now we run a logit model on the training data and look at the deviance table. 
+
+``` {r trainmodel}
+senv_fit1 <- glm(senv ~ meeting + environmental+water+epa+request+conference+soviet+tender+equipment+firms+berlin+project+interested+reply,
+             data = train1_data, family=binomial(link='logit'))
+summary(senv_fit1)
+
+anova(senv_fit1, test="Chisq")
+
+```
+
+# Prediction accuracy
+Finally, we predict on the test data and examine how successful we were on the test data based only on the training data.
+
+We can compare against the full data to see how well we did with a training model. 
+
+```{r apply to test data}
+pred1_data<-predict(senv_fit1,test1_dfm)
+
+actual_class<-docvars(test1_dfm,"senv")
+predicted_class<-ifelse(pred1_data>=.5,1,0)
+glmtabtr<-table(actual_class,predicted_class)
+glmtabtr
+# Based on training data
+prop.table(table(actual_class,predicted_class))
+
+# Based on full data
+prop.table(table(Predict=test_data$senvhat, Actual=test_data$senv))
+
+confusionMatrix(glmtabtr, mode="everything")
+
+```
+
+
+# Naive bayesian classifier
+
+We will now turn to Naive Bayesian classification using Quanteda.
+
+We will compare an NBC using 500 training observationsto one with 50 training observations. 
+
+At the end we will compare these results to our simple logit model.
+
+```{r NBC setup}
+docvars(trcorp,"id_numeric")<-1:ndoc(trcorp)
+training_dfm <-corpus_subset(trcorp,id_numeric %in% id_train) %>% dfm(remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+training_dfm50 <-corpus_subset(trcorp,id_numeric %in% id_train50) %>% dfm(remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+
+test_dfm<-corpus_subset(trcorp , !id_numeric %in% id_train) %>% dfm(remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+test_dfm50<-corpus_subset(trcorp , !id_numeric %in% id_train50) %>% dfm(remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+
+```
+
+# NBC Model
+The Naive Bayesian Classifier is easy to run in Quanteda 
+We only need to specify the DFM and then the training class outcome. 
+
+Coefficients are estimated for every feature in the training data giving the probability a feature occurs in one group or the other.
+
+```{r NBC model}
+nb<-textmodel_nb(training_dfm, docvars(training_dfm,"senv"))
+
+summary(nb)
+table(training_dfm@docvars$senv)
+
+```
+
+# Out of sample 
+
+Next we apply the NBC model to the test DFM to see how well the model works.
+
+We get an accuracy of 94% which is pretty good. It's better than the 88% from the logit models.
+
+We have more false positives predicted than false negatives.
+
+```{r NBCpredictions}
+test_dfm<-dfm_select(test_dfm,training_dfm)
+
+pred_data<-predict(nb,test_dfm)
+
+actual_class<-docvars(test_dfm,"senv")
+predicted_class<-pred_data$nb.predicted
+table(actual_class,predicted_class)
+
+class_table<-table(actual_class,predicted_class)
+confusionMatrix(class_table, mode="everything")
+```
+
+
+
+# 50 training observations
+
+When using real world data and classifying we may not have the resources to code 500 documents. How does the accuracy compare if we use only 50 training observations?
+
+We run the NBC on our 50 training observations and then compare it to the rest of the data.
+
+```{r 50 training}
+nb50<-textmodel_nb(training_dfm50, docvars(training_dfm50,"senv"))
+summary(nb50)
+table(training_dfm50@docvars$senv)
+
+test_dfm50<-dfm_select(test_dfm50,training_dfm50)
+pred_data50<-predict(nb50,test_dfm50)
+
+```
+
+# Evaluation 50 training observations
+
+The accuracy of the prediction drops to 90%. 
+
+We again have too many false positives. 
+
+```{r 50 evaluation}
+actual_class50<-docvars(test_dfm50,"senv")
+predicted_class50<-pred_data50$nb.predicted
+nbc50<-table(actual_class50,predicted_class50)
+nbc50
+confusionMatrix(nbc50, mode="everything")
+
+```
+
+# Comparison
+Now we will compare the 4 classifiers
+
+
+```{r comparison of all classifiers}
+# Table of 500 training
+table(actual_class,predicted_class)
+# Proportion 50 training
+prop.table(table(actual_class50,predicted_class50))
+# Proportion 500 training
+prop.table(table(actual_class,predicted_class))
+
+# Logit 500 training data
+prop.table(glmtabtr)
+
+# Logit  full data
+prop.table(table(Predict=test_data$senvhat, Actual=test_data$senv))
+
+
+```
+
+
+```{r additional material, echo=FALSE, eval =FALSE}
+training_dfm100 <-corpus_subset(trcorp,id_numeric %in% id_train100) %>% dfm(remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+training_dfm150 <-corpus_subset(trcorp,id_numeric %in% id_train150) %>% dfm(remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+training_dfm200 <-corpus_subset(trcorp,id_numeric %in% id_train200) %>% dfm(remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+test_dfm100<-corpus_subset(trcorp , !id_numeric %in% id_train100) %>% dfm(remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+test_dfm150<-corpus_subset(trcorp , !id_numeric %in% id_train150) %>% dfm(remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+test_dfm200<-corpus_subset(trcorp , !id_numeric %in% id_train200) %>% dfm(remove_numbers=TRUE, remove_punct = TRUE, remove=stopwords('english'))
+
+
+```
