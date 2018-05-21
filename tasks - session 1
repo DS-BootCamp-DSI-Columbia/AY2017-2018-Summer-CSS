@@ -1,0 +1,17 @@
+install:
+	quanteda
+	igraph
+	topicmodels
+	caret
+	ggplot2
+	RMySQL
+
+install.packages("NAME") 
+
+
+open trade76.csv
+get first 10 rows
+how many countries are in the data
+
+The ccode for the UK is 200.
+what is the GDP for the UK in 1976.
