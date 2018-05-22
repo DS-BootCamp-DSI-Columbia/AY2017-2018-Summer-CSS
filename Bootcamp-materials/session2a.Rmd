@@ -1,7 +1,7 @@
 ---
 title: "Graphing"
 author: "Raymond Hicks"
-date: "May 14, 2018"
+date: "May 22, 2018"
 #output: html_document
 output: slidy_presentation
 
@@ -184,6 +184,7 @@ ggplot(trade76, aes(lnpromote, lnX))+geom_point(aes(size = lngdp), na.rm=TRUE)
 
 ggplot(trade76, aes(lnpromote, lnX))+geom_point(aes(size = exp(lngdp)/1000), na.rm=TRUE)
 
+ggplot(trade76, aes(lnpromote, lnX))+geom_point(aes(size = exp(lngdp)/1000), show.legend=TRUE,na.rm=TRUE)+labs(size="GDP in mil")
 
 ```
 

@@ -1,7 +1,7 @@
 ---
 title: "Summary stats"
 author: "Raymond Hicks"
-date: "May 15, 2018"
+date: "May 22, 2018"
 #output: html_document
 output: slidy_presentation
 
