@@ -1,0 +1,148 @@
+---
+title: "GLM"
+author: "Raymond Hicks"
+date: "May 23, 2018"
+#output: html_document
+output: slidy_presentation
+
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r bring in data}
+library(foreign)
+library(caret)
+
+setwd('c:/Users/arpie71/dropbox/columbia/workshop/data')
+trade76 <- read.csv(file="trade76.csv", header=TRUE, sep=",")
+str(trade76)
+
+```
+
+# Scatter plot with regression fit line
+We will first make a similar graph as yesterday, plotting Trade Promotion against exports.
+This time we will use the abline function to add in the bivariate regression. 
+
+
+```{r plot regression line}
+library(ggplot2)
+plot(lnX ~ lnpromote, data = trade76, xlab="Trade promotion", ylab="Logged Exports")
+abline(lm(lnX ~ lnpromote, data = trade76), xlab="Trade promotion", ylab="Logged Exports")
+plot(lnM ~ lnpromote, data = trade76)
+
+```
+
+# Regression
+
+Now we will run the regression to determine the effect of trade promotion on U.S. exports and then U.S. imports
+We use the lm function which is short for linear model. The dependent variable is listed first followed by the tilde sign. Each of the independent variables is then listed separated by a plus sign. Finally, we we tell R where the variables are from. 
+
+
+```{r regression models}
+
+Xres <- lm(lnX ~ lnpromote + contig+comlang_off + col45+gatt_d+lndistw + lngdp , data=trade76)
+summary(Xres)
+Mres <- lm(lnM ~ lnpromote + contig+comlang_off + col45+gatt_d+lndistw + lngdp , data=trade76)
+summary(Mres)
+```
+# Predict by hand
+We create a matrix of the IVs from the model and a 1 at the front for the intercept.
+Then we multiply this matrix by the coefficients to get the predicted values.
+Now we can compare these to the information stored by R
+
+
+``` {r predict by hand}
+mattest <-as.matrix(Xres$model[2:8])
+mattest<-cbind(1,mattest)
+xb<-mattest%*%Xres$coefficients
+print(head(xb))
+print(head(Xres$fitted.values))
+```
+
+
+# Predicted residuals
+We can do someting similar to get the residuals. We know that our predicted values vector has the same number of rows as the dependent variable used in the model so we can subtract the two values directly. 
+Again, we could compare the predicted residuals to what R produces.
+
+```{r compare residuals}
+Xerr <-xb-Xres$model$lnX
+print(head(Xerr))
+print(head(Xres$residuals))
+```
+
+# Plot residuals
+
+Finally we will plot the residuals of our two models against the dependent variable in each. 
+
+```{r residuals}
+plot(Xres$model$lnX , Xres$residuals)
+plot(Mres$model$lnM , Mres$residuals)
+```
+
+# Binomial
+## Logit
+
+Running logits and probits in R is pretty straightforward. We use the GLM command again.
+The dependent variable is dichotomous and has a binomial distribution so we specify the binomial family.
+then we tell R we want the logit link. 
+
+## Probit
+For probit we just substitute the probit link for the logit link.
+
+### New variable
+First, we create a new variable (btiod) that equals 1 if a country received any State Department report about trade investment opportunities.
+
+
+```{r logit}
+
+trade76$btiod <-trade76$btio>0
+logit<-glm(btiod~lngdp + lnX + lndistw + gatt_d + comlang_off , data=trade76, family=binomial(link= logit))
+
+probit<-glm(btiod~lngdp + lnX + lndistw + gatt_d + comlang_off  , data=trade76, family=binomial(link= probit))
+summary(logit)
+summary(probit)
+```
+
+# Deviance
+How much does each variable contribute to model it?
+We can ask R to run an anova with a Chi-squared test to see each variable's contribution to explaining the DV.
+
+``` {r deviance}
+
+anova(logit, test="Chisq")
+anova(probit, test="Chisq")
+
+````
+
+# Model fit
+Finally we will look at the predicted value of Y compared to the actual value for both the probit and logit models.
+
+
+```{r binomial fit}
+logit$pr<-predict(logit, type="response")
+logit$yhat<-logit$pr>.5
+table(logit$yhat,logit$model$btiod)
+
+probit$pr<-predict(probit, type="response")
+probit$yhat<-probit$pr>.5
+tab<-table(probit$yhat,probit$model$btiod)
+tab
+confusionMatrix(tab)
+
+
+```
+
+# Poisson
+Poisson models treat the DV as a count variable.
+
+```{r poisson}
+poiss<-glm(btio~lngdp + lnX + lndistw +gatt_d+comlang_off, data=trade76, family=poisson)
+summary(poiss)
+anova(poiss, test="Chisq")
+
+poiss$pred<-predict(poiss, type="response")
+cor(poiss$pred,poiss$model$btio)
+
+```
