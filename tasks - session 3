@@ -1,0 +1,22 @@
+Lab session 3
+
+trade76 data
+
+- Does the  eewt variable have an effect on US exports to a country? US imports?
+
+- Run the same models using the log of eewt. What happens to the sample size? Why?
+
+log of 0 = infinity, is.finite restricts data to finite values
+
+- Run the first two models on only GATT countries
+- use these coefficents to predict the value of lnX and lnM for non-GATT countries
+
+plot the actual non-GATT lnX and lnM with predicted values
+
+
+-convert the eewt variable into a dichtomous variable 
+-which countries have non-zero values of eewt?
+
+- try to predict eewt using variables at hand
+- create a European variable (ccode>=200 & ccode<400)
+- is it significant
