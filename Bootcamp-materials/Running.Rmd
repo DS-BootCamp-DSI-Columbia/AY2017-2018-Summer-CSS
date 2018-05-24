@@ -1,0 +1,46 @@
+---
+title: "Running"
+author: "Sid"
+date: "1/23/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r running}
+run<-read.csv("Running.csv")
+plot(run)
+x<-run[run[,3]=="Yes",]
+xx<-run[run[,3]=="No",]
+plot(run$Temp,run$Wind,type="n")
+points(x, col="red")
+points(xx, col="blue")
+
+```
+
+Now knn fitting using knn function from the class library. We then predict the outcome for the testdata which is the same as training data. WE plot now the predicted values with * character. 
+
+```{r}
+library(class)
+k=4
+plot(run$Temp,run$Wind,type="n",main=c("K=",k))
+points(x, col="red")
+points(xx, col="blue")
+cl<-factor(run[,3])
+
+run_pred<-knn(run[,1:2],run[,1:2],cl,k=4)
+run_pred<-cbind(run[,1:2],run_pred)
+run_pred_x<-run_pred[run_pred[,3]=="Yes",]
+run_pred_xx<-run_pred[run_pred[,3]=="No",]
+points(run_pred_x,col="red",pch="*")
+points(run_pred_xx,col="blue",pch="*")
+```
+

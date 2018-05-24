@@ -1,0 +1,131 @@
+---
+title: "Data Science for Social Sciences ML Session 1 "
+date: "05/23/2018"
+output:
+  pdf_document: 
+    number_sections: yes
+    toc: no
+    toc_depth: 1
+  html_document: 
+    df_print: default
+    number_sections: yes
+    toc: no
+    toc_depth: 1
+---
+
+-----
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+```
+#Bias - Variance Tradeoff (True/False)
+
+**Answer the True/False questions given the equation below**
+
+$E[(y-\hat{f}(x))^2]=Bias[\hat{f}(x)]^2 + Var[\hat{f}(x)] + \sigma^2$  
+                        
+    
+The left side of the equation (i.e.$E[(y-\hat{f}(x))^2]$ ) will never be negative (**T/F**)
+  
+In general, we expect $Var[\hat{f}(x)]$ to be smaller when we use more flexible methods (**T/F**)
+  
+As we move from less flexible to more flexible methods, $Bias[\hat{f}(x)]^2$ will usually not increase(**T/F**)
+  
+More data will reduce the bias of an estimator (**T/F**)
+  
+More data will reduce the variance of an estimator (**T/F**)
+  
+# Classification on Dog Cancer Data 
+
+Download the file echogen.txt. These data are from a study evaluating cancer in dogs and can be used to answer the question, are dogs’ lymph nodes benign or malignant? The predictors reflect several associated ultrasonography measurements. The study’s objective was to evaluate use of ultrasound to characterize lymph nodes in dogs. The six variables in these data include, Echogen, Flowdist, meanPI, meanRI, Lyadpati, and diagtype. The predictor diagtype is a target indicator variable, where 1 indicates malignant and 0 indicates benign.
+
+## KNN with K=1
+Divide the dataset into training set (119 rows) and testing set (58 rows). It usually helps to shuffle the rows of the data before splitting into training and testing.
+
+The cleaning/splitting part has already been done for you. You are asked to run the model and compute the accuracies. For this example, you will need the "class" library that allows you to have access to the KNN function. Here's a link to the documentation: https://stat.ethz.ch/R-manual/R-devel/library/class/html/knn.html
+
+Let's read/clean/shuffle and split first: 
+```{r}
+
+#read data
+echogen<-read.table('echogen.txt',header=TRUE)
+#shuffle shuffle
+set.seed(1)
+echogen<-echogen[sample.int(177,177,replace=FALSE),]
+#training
+echogen_training<-echogen[1:119,]
+#test
+echogen_test<-echogen[1:58,]
+```
+
+Let's prepare the data for KNN: 
+```{r}
+#You need to separate the response variable before using the KNN function in R. 
+echogen_KNNtraining_no_label<-subset(echogen_training,select=-c(diagtype))
+echogen_KNNtest_no_label<-subset(echogen_test,select=-c(diagtype))
+
+#create classifications vector 
+echogen_cl<-factor(echogen_training[,6])
+
+
+```
+
+Run KNN with K=1. Calculate the accuracy (# of correct classifications / # of incorrec classifications): 
+```{r}
+#CODE GOES HERE 
+```
+
+
+##KNN With K=10
+Now do the analysis with K=10. Calculate the accuracy. What does the differences (if any) between the accuracies 
+tell you? 
+
+```{r}
+#CODE GOES HERE 
+```
+
+##Linear Discriminant Analysis (LDA)
+
+Repeat the same analysis using LDA. Train your model on the training set, and fit the model on the testing set. 
+TIP: You don't have to split the response variables of the data for this question. You can use the *echogen_training* and *echogen_testing* datasets. 
+
+You can use R's LDA function found in the MASS library. Here's a link to the documentation: https://stat.ethz.ch/R-manual/R-devel/library/MASS/html/lda.html
+
+```{r}
+#CODE GOES HERE 
+```
+
+###Confusion Matrix
+Create a confusion matrix for LDA's classification performance on test data. Calculate the specificity and sensitivity of your fitted model using this confusion matrix.
+
+TIP: R's Caret library has a function called "confusionMatrix". Try using this function for this problem. Here's a link to the documentation: https://www.rdocumentation.org/packages/caret/versions/3.45/topics/confusionMatrix
+
+```{r}
+#CODE GOES HERE 
+```
+
+
+#Challenger Disaster 
+
+The NASA space shuttle Challenger exploded on January 28, 1986, just 73 seconds after liftoff, in one of the worst disasters in U.S. space exploration history. The explosion came after 23 successful space shuttle flights. On the morning of January 28, however, the weather was unusually cold and engineers warned that certain components — particularly the rubber O-rings that sealed the joints of the shuttle’s solid rocket boosters — were vulnerable to failure at low temperatures. These warnings went unheeded.
+
+The dataset challenger.csv includes predictor temptr in degrees Fahrenheit at the time of the 23 flights prior to the Challenger disaster, and predictor F.distress indicating 1 if at least one primary O-ring suffered thermal distress, 0 otherwise. Load this dataset.
+
+## Logistic Regression 
+
+Use logistic regression to model the effect of temperature (temptr) on the probability of thermal distress to the O-rings (F.distress). That is, fit the model.
+
+##Estimate $\beta_1$
+
+Estimate $\beta_1$, as the effect of temperature on the probability of thermal distress.
+
+##Probability of Distress at 31 Degrees
+Predict the probability of thermal distress at 31 degrees Fahrenheit, which was the temperature at the time of the Challenger flight.
+
+
+
+
+
+
+
+

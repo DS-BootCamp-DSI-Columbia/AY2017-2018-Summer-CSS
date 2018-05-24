@@ -1,0 +1,46 @@
+---
+title: "Kyphosis_trees"
+author: "Sid"
+date: "5/22/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+Now Trees: Khyposis Analysis- kyphosis data is in gam library
+```{r}
+	library(gam)
+  library(rpart)
+set.seed<-100
+K <- 100
+n.train <- 60
+n.val <- length(kyphosis$Kyphosis)
+n.test <- n.val - n.train
+inds.train <- sample(1:n.val,n.train)
+inds.test <- setdiff(1:n.val,inds.train)
+
+kyphosis.train <- kyphosis[inds.train,]
+kyphosis.test <- kyphosis[inds.test,]
+out.list <- list(K)
+out.vals <- mat.or.vec(n.test,K)
+base.fit <- rpart(Kyphosis ~ Age + Number + Start, 
+  data=kyphosis.train,parms=list(split='information'))
+par( xpd = NA)
+plot(base.fit)
+text(base.fit, use.n = TRUE)
+out.vals.base <- predict(base.fit,kyphosis.test,type="class")
+print(out.vals.base)
+table(kyphosis.test[,1],out.vals.base)
+```
+
+Now Randomforest
+```{r}
+#install.packages("randomForest")
+library(randomForest)
+tree.rf <- randomForest(Kyphosis ~ Age + Number + Start,data=kyphosis.train)
+out.rf <- predict(tree.rf,kyphosis.test)
+print(out.rf)
+table(kyphosis.test[,1],out.rf)
+```
+

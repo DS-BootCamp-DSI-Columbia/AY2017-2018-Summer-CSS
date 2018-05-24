@@ -1,0 +1,42 @@
+---
+title: "Congress_Approval"
+author: "Sid"
+date: "5/23/2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+Here we run knn for regression on Congressional Approval Data set from congress.csv file.
+For regression we use FNN libraryand use the function knn.reg
+```{r}
+#setwd("/Users/siddharthadalal/Dropbox/Columbia/Columbia_Courses/APAN/APAN_ML_Course_Spring_2018/ML_Lectures_Spring_2018/Notes_Data_Rscripts_ML")
+library(FNN)
+appr.df<-read.csv("congress.csv")
+appr.df.year<-as.data.frame(appr.df$Year)
+
+#xappr<-as.data.frame(appr.df$Year)
+yappr<-appr.df$Rating
+yappr_predict1<-knn.reg(appr.df.year,test=appr.df.year,appr.df$Rating,k=1)
+yappr_predict3<-knn.reg(appr.df.year,test=appr.df.year,appr.df$Rating,k=3)
+yappr_predict5<-knn.reg(appr.df.year,test=appr.df.year,appr.df$Rating,k=5)
+```
+
+```{r congress, echo=T}
+plot(appr.df$Year,appr.df$Rating)
+plot(appr.df$Year,yappr,main="Congress Approval knn, k=1 in black, k=3 in blue, k=5 in red",xlab="Year",ylab="Rating")   
+lines(appr.df$Year,yappr_predict1$pred)
+lines(appr.df$Year,yappr_predict3$pred,col="blue")
+lines(appr.df$Year,yappr_predict5$pred,col="red")
+```
+
+
+
+
+
+
+

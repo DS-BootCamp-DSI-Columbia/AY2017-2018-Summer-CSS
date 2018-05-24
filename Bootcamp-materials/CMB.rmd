@@ -1,0 +1,30 @@
+---
+title: "cmb_anal.rmd"
+author: "Sid"
+date: "5/23/2018"
+output: html_document
+---
+The Big Bang theory predicts that the early universe was a very hot place and that as it expands, the gas within it cools. Thus the universe should be filled with radiation that is literally the remnant heat left over from the Big Bang, called the “cosmic microwave background", or CMB.
+```{r setup, include=FALSE}
+#setwd("/Users/siddharthadalal/Dropbox/Columbia/Columbia_Courses/APAN/APAN_ML_Course_Spring_2018/ML_Lectures_Spring_2018/Notes_Data_Rscripts_ML")
+knitr::opts_chunk$set(echo = TRUE)
+```
+Analysis of Cosmic Microwave Background
+```{r}
+library(rpart)
+ cmb <- read.csv("cmb.csv")
+ names(cmb)
+attach(cmb)
+ plot(ell,Cl,main="Cosmic Microwve Background",ylab="cmb",xlab="index")
+
+ tree.cmb <- rpart(Cl ~ ell)
+ names(tree.cmb)
+ cmb.fit <- predict(tree.cmb,cmb,type="vector")
+plot(cmb.fit)
+ lines(ell,cmb.fit,col="red",lwd=3)
+ par(mfrow=c(1,1))
+ plot(tree.cmb)
+ text(tree.cmb,use.n=TRUE)
+ # use.n displays the number in each leaf
+```
+ 
